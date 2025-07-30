@@ -17,8 +17,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,26 +33,46 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import dev.lucasteixeira.desafioexploradordefilmes.data.model.Movie
+import dev.lucasteixeira.desafioexploradordefilmes.utils.formatDateString
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieScreen(viewModel: MoviesViewModel, onMovieClick: (Int)->Unit) {
 
     val movies by viewModel.movies.observeAsState(initial = emptyList())
 
-    if (movies.isEmpty()){
-        Box(
-            modifier = Modifier.fillMaxWidth(),
+    Scaffold (
+        topBar = {
+            TopAppBar(
+                title = {Text("Explorador de Filmes")},
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ){innerPadding ->
+        Box(modifier = Modifier
+            .padding(innerPadding)
+            .fillMaxSize(),
             contentAlignment = Alignment.Center
         ){
-            CircularProgressIndicator()
+            if(movies.isEmpty()){
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ){
+                    CircularProgressIndicator()
+                }
+            }else{
+                MovieList(movies = movies, onMovieClick = onMovieClick)
+            }
+            LaunchedEffect(Unit) {
+                viewModel.fetchPopularMovies()
+            }
         }
-    } else{
-        MovieList(movies = movies, onMovieClick = onMovieClick)
-    }
-    LaunchedEffect(Unit) {
-        viewModel.fetchPopularMovies()
-    }
 
+    }
 }
 
 @Composable
@@ -93,7 +117,7 @@ fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onMovieClick: () -> U
                     text = movie.title, style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Lançamento: ${movie.releaseDate}", style = MaterialTheme.typography.bodyMedium)
+                Text(text = "Lançamento: ${formatDateString(movie.releaseDate)}", style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

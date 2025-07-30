@@ -13,6 +13,7 @@ lifecycle = "2.7.0"
 activityKtx = "1.9.0"
 coil = "2.6.0"
 navigation = "2.7.7"
+splashscreen = "1.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -39,6 +40,7 @@ activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref
 
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
+androidx-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 [plugins]
