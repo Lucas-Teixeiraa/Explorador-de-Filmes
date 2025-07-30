@@ -1,3 +1,5 @@
+import java.util.Properties
+import java.io.FileInputStream
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -16,7 +18,27 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "API_KEY", "\"${project.property("API_KEY")}\"")
+
+        val localPropertiesFile = project.rootProject.file("local.properties")
+        val properties = Properties()
+
+        if (localPropertiesFile.exists()) {
+            FileInputStream(localPropertiesFile).use { input ->
+                properties.load(input)
+            }
+        } else {
+
+            println("AVISO: Arquivo local.properties não encontrado na raiz do projeto.")
+        }
+        val apiKeyFromProperties = properties.getProperty("API_KEY")
+
+        if (apiKeyFromProperties == null || apiKeyFromProperties.trim().isEmpty()) {
+            println("AVISO: A propriedade API_KEY não foi encontrada ou está vazia no arquivo local.properties.")
+            buildConfigField("String", "API_KEY", "\"\"")
+        } else {
+
+            buildConfigField("String", "API_KEY", "\"$apiKeyFromProperties\"")
+        }
     }
 
     buildTypes {
