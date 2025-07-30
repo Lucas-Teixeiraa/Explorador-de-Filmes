@@ -11,7 +11,8 @@ composeBom = "2024.09.00"
 retrofit = "2.9.0"
 lifecycle = "2.7.0"
 activityKtx = "1.9.0"
-glide = "4.16.0"
+coil = "2.6.0"
+navigation = "2.7.7"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -36,7 +37,10 @@ lifecycle-viewmodel-ktx = { group = "androidx.lifecycle", name = "lifecycle-view
 lifecycle-livedata-ktx = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
 activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activityKtx" }
 
-glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+
+compose-runtime-livedata = { group = "androidx.compose.runtime", name = "runtime-livedata" }
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

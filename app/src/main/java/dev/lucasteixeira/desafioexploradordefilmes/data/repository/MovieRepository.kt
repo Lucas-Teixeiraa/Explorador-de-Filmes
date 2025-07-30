@@ -1,14 +1,13 @@
 package dev.lucasteixeira.desafioexploradordefilmes.data.repository
 
-import android.os.Build
-import androidx.annotation.RequiresExtension
+import android.annotation.SuppressLint
 import dev.lucasteixeira.desafioexploradordefilmes.BuildConfig
 import dev.lucasteixeira.desafioexploradordefilmes.data.api.RetrofitInstance
 import dev.lucasteixeira.desafioexploradordefilmes.data.model.Movie
 
 
-class MovieRepositoy {
-    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 7)
+class MovieRepository {
+    @SuppressLint("newApi")
     suspend fun getPopularMovies(): List<Movie>{
         return try {
             val apiKey = BuildConfig.API_KEY

@@ -74,14 +74,16 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
 
+    implementation(libs.coil.compose)
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
+
+    implementation(libs.compose.runtime.livedata)
+    implementation(libs.navigation.compose)
 
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.lifecycle.livedata.ktx)
     implementation(libs.activity.ktx)
-
-    implementation(libs.glide)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
