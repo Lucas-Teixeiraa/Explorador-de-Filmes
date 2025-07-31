@@ -1,5 +1,6 @@
 package dev.lucasteixeira.desafioexploradordefilmes.ui.details
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -11,6 +12,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -20,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
@@ -28,18 +32,25 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import dev.lucasteixeira.desafioexploradordefilmes.ui.main.MoviesViewModel
+import dev.lucasteixeira.desafioexploradordefilmes.ui.main.UiState
 import dev.lucasteixeira.desafioexploradordefilmes.utils.formatDateString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(viewModel: MoviesViewModel, movieId: Int, onNavigateUp: () -> Unit) {
-    val movies by viewModel.movies.observeAsState(initial = emptyList())
-    val movie = movies.find{it.id == movieId}
+    val moviesDetail by viewModel.selectedMovie.observeAsState()
+    LaunchedEffect(movieId) {
+        viewModel.fetchMovieById(movieId)
+    }
 
     Scaffold(
         topBar = {
+            val title = when (val state = moviesDetail) {
+            is UiState.Success -> state.data.title
+            else -> "Detalhes"
+        }
             TopAppBar(
-                title = { Text(movie?.title ?: "Detalhes") },
+                title = { Text(title)},
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
                         Icon(
@@ -57,38 +68,65 @@ fun DetailScreen(viewModel: MoviesViewModel, movieId: Int, onNavigateUp: () -> U
         }
     ) { innerPadding ->
         Box(modifier = Modifier.padding(innerPadding)) {
-            if(movie !=null){
-                Column (
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(16.dp)
-                ){
-                    AsyncImage(
-                        model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
-                        contentDescription = "Pôster do filme ${movie.title}",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(400.dp),
-                        contentScale = ContentScale.Fit
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
+           when(val state = moviesDetail) {
+               is UiState.Loading -> {
+                   CircularProgressIndicator()
+               }
 
-                    Text(text = movie.title, style = MaterialTheme.typography.headlineLarge)
-                    Spacer(modifier = Modifier.height(8.dp))
+               is UiState.Success -> {
+                   val movie = state.data
+                   Column(
+                       modifier = Modifier
+                           .fillMaxSize()
+                           .verticalScroll(rememberScrollState())
+                           .padding(16.dp)
+                   ) {
+                       AsyncImage(
+                           model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
+                           contentDescription = "Pôster do filme ${movie.title}",
+                           modifier = Modifier
+                               .fillMaxWidth()
+                               .height(400.dp),
+                           contentScale = ContentScale.Fit
+                       )
+                       Spacer(modifier = Modifier.height(16.dp))
 
-                    Text(text = "Lançamento: ${formatDateString(movie.releaseDate)}", style = MaterialTheme.typography.titleLarge)
-                    Spacer(modifier = Modifier.height(8.dp))
+                       Text(text = movie.title, style = MaterialTheme.typography.headlineLarge)
+                       Spacer(modifier = Modifier.height(8.dp))
 
-                    Text(text = "Descrição: ", style = MaterialTheme.typography.titleLarge)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = movie.overview, style = MaterialTheme.typography.bodyLarge)
-                }
-            } else{
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-                    Text(text = "Filme nao encontrato")
-                }
-            }
+                       Text(
+                           text = "Lançamento: ${formatDateString(movie.releaseDate)}",
+                           style = MaterialTheme.typography.titleLarge
+                       )
+                       Spacer(modifier = Modifier.height(8.dp))
+
+                       Text(text = "Descrição: ", style = MaterialTheme.typography.titleLarge)
+                       Spacer(modifier = Modifier.height(8.dp))
+                       Text(text = movie.overview, style = MaterialTheme.typography.bodyLarge)
+                   }
+               }
+
+               is UiState.Error -> {
+                   Column(
+                       modifier = Modifier.padding(16.dp),
+                       horizontalAlignment = Alignment.CenterHorizontally,
+                       verticalArrangement = Arrangement.Center
+                   ) {
+                       Text(
+                           text = state.message,
+                           color = MaterialTheme.colorScheme.error,
+                           style = MaterialTheme.typography.titleMedium
+                       )
+                       Spacer(modifier = Modifier.height(16.dp))
+                       Button(onClick = { viewModel.fetchMovieById(movieId) }) {
+                           Text("Tentar Novamente")
+                       }
+                   }
+               }
+               null ->{
+                   CircularProgressIndicator()
+               }
+           }
         }
     }
 

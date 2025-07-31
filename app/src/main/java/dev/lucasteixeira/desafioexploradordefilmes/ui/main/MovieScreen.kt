@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.isEmpty
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -39,7 +41,7 @@ import dev.lucasteixeira.desafioexploradordefilmes.utils.formatDateString
 @Composable
 fun MovieScreen(viewModel: MoviesViewModel, onMovieClick: (Int)->Unit) {
 
-    val movies by viewModel.movies.observeAsState(initial = emptyList())
+    val uiState by viewModel.uiState.observeAsState()
 
     Scaffold (
         topBar = {
@@ -57,69 +59,37 @@ fun MovieScreen(viewModel: MoviesViewModel, onMovieClick: (Int)->Unit) {
             .fillMaxSize(),
             contentAlignment = Alignment.Center
         ){
-            if(movies.isEmpty()){
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ){
+            when (val state = uiState){
+                is UiState.Loading -> {
                     CircularProgressIndicator()
                 }
-            }else{
-                MovieList(movies = movies, onMovieClick = onMovieClick)
-            }
-            LaunchedEffect(Unit) {
-                viewModel.fetchPopularMovies()
-            }
-        }
-
-    }
-}
-
-@Composable
-fun MovieList(movies: List<Movie>, onMovieClick: (Int) -> Unit) {
-    LazyColumn (
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-    ){
-        items(movies){movie ->
-            MovieItem(
-                movie = movie,
-                modifier = Modifier.padding(vertical = 8.dp),
-                onMovieClick = {
-                    onMovieClick(movie.id)
+                is UiState.Success<*> -> {
+                    val movieList = state.data as? List<Movie>
+                    if (movieList == null || movieList.isEmpty()){
+                        Text("Nenhum filme popular encontrado")
+                    }else{
+                        MovieList(movies = movieList, onMovieClick = onMovieClick)
+                    }
                 }
-            )
-        }
-    }
-}
-
-@Composable
-fun MovieItem(movie: Movie, modifier: Modifier = Modifier, onMovieClick: () -> Unit) {
-    Card (
-        modifier = modifier
-            .fillMaxSize()
-            .clickable{ onMovieClick()}
-    ){
-        Row (
-           verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(8.dp)
-        ){
-            AsyncImage(
-                model = "https://image.tmdb.org/t/p/w500${movie.posterPath}",
-                contentDescription = "Pôster do filme ${movie.title}",
-                modifier = Modifier.size(width = 100.dp, height = 150.dp),
-                contentScale = ContentScale.Crop
-            )
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            Column {
-                Text(
-                    text = movie.title, style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(text = "Lançamento: ${formatDateString(movie.releaseDate)}", style = MaterialTheme.typography.bodyMedium)
+                is UiState.Error ->{
+                    Column (
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        Text(text = state.message, color = MaterialTheme.colorScheme.error)
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(onClick = {
+                            viewModel.fetchPopularMovies()
+                        }) {
+                            Text("Tentar Novamente")
+                        }
+                    }
+                }
+                null -> {
+                    CircularProgressIndicator()
+                }
             }
         }
-    }
 
+    }
 }
+
