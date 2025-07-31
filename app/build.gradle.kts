@@ -79,6 +79,8 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
 
+    implementation(libs.okhttp.logging.interceptor)
+
     implementation(libs.compose.runtime.livedata)
     implementation(libs.navigation.compose)
 
