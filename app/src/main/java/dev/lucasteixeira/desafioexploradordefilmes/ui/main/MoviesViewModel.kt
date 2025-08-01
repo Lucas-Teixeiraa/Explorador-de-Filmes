@@ -1,12 +1,10 @@
 package dev.lucasteixeira.desafioexploradordefilmes.ui.main
 
-import android.annotation.SuppressLint
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.lucasteixeira.desafioexploradordefilmes.data.model.Movie
 import dev.lucasteixeira.desafioexploradordefilmes.data.repository.MovieRepository
 import kotlinx.coroutines.flow.MutableStateFlow

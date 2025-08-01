@@ -20,11 +20,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.lucasteixeira.desafioexploradordefilmes.data.model.Movie
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,7 +74,6 @@ fun MovieScreen(viewModel: MoviesViewModel, onMovieClick: (Int)->Unit) {
                 val isPopularListEmpty = popularMovies.isEmpty()
 
                 if (listError != null && ((listMode == ListMode.DISCOVER && isDiscoverListEmpty) || (listMode == ListMode.POPULAR && isPopularListEmpty))) {
-                    // Se houver um erro no carregamento inicial, mostre a ErrorView
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         ErrorView(message = listError!!, onRetry = viewModel::onRetryClicked)
                     }
